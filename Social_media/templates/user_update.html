@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="mx-auto mt-5 shadow-sm" style="max-width: 450px; background-color: #ffffff; border-radius: 20px; overflow: hidden;">
+    
+    <div class="text-center py-4 text-white" style="background-color: #2b1b3d;">
+        <h3 class="fw-bold mb-1"><i class="fa-regular fa-id-card me-2"></i>პროფილი</h3>
+        <p class="mb-0" style="color: #ccbccc !important; font-size: 14px;">ინფორმაციის რედაქტირება</p>
+    </div>
+
+    <div class="p-4 px-5">
+        {% if form.errors %}
+            <div class="alert alert-danger rounded-3 p-2 small mb-3">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> გთხოვთ, შეავსოთ ველები სწორად.
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="custom-profile-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold fs-6 mt-3 shadow-sm">
+                შენახვა
+            </button>
+        </form>
+        
+        <div class="mt-2">
+            <a href="{% url 'user_profile' request.user.username %}" class="btn btn-light w-100 rounded-pill py-2 fw-bold fs-6 border">
+                გაუქმება
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-profile-form p {
+        margin-bottom: 15px !important;
+    }
+    .custom-profile-form label {
+        font-weight: 600;
+        font-size: 13.5px;
+        color: #495057;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .custom-profile-form input[type="text"], 
+    .custom-profile-form input[type="email"],
+    .custom-profile-form textarea,
+    .custom-profile-form input[type="file"] {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        background-color: #f8f9fa;
+        font-size: 14px;
+        outline: none;
+        transition: 0.3s;
+    }
+    .custom-profile-form textarea {
+        border-radius: 12px;
+        resize: none;
+        height: 80px;
+    }
+    .custom-profile-form input:focus,
+    .custom-profile-form textarea:focus {
+        border-color: #2b1b3d;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(43, 27, 61, 0.1);
+    }
+    .custom-profile-form a {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 13px;
+        color: #2b1b3d;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .custom-profile-form .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 5px 0;
+        color: #dc3545;
+        font-size: 12px;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}

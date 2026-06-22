@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="mx-auto mt-5 shadow-sm" style="max-width: 450px; background-color: #ffffff; border-radius: 20px; overflow: hidden;">
+    
+    <div class="text-center py-4 text-white" style="background-color: #2b1b3d;">
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-user-plus me-2"></i>რეგისტრაცია</h3>
+        <p class="mb-0" style="color: #ccbccc !important; font-size: 14px;">შემოუერთდი Geo-Pop-ს</p>
+    </div>
+
+    <div class="p-4 px-5">
+        {% if form.errors %}
+            <div class="alert alert-danger rounded-3 p-2 small mb-3">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> გთხოვთ, შეავსოთ ველები სწორად.
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="custom-register-form">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold fs-6 mt-2 shadow-sm">
+                ანგარიშის შექმნა
+            </button>
+        </form>
+        
+        <hr class="my-4 text-muted opacity-25">
+
+        <p class="text-center mb-1 text-secondary" style="font-size: 14.5px;">
+            უკვე გაქვთ ანგარიში? 
+            <a href="{% url 'login' %}" class="text-decoration-none fw-bold" style="color: #2b1b3d;">შესვლა</a>
+        </p>
+    </div>
+</div>
+
+<style>
+    .custom-register-form p {
+        margin-bottom: 15px !important;
+    }
+    .custom-register-form label {
+        font-weight: 600;
+        font-size: 13.5px;
+        color: #495057;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .custom-register-form input[type="text"], 
+    .custom-register-form input[type="password"], 
+    .custom-register-form input[type="email"],
+    .custom-register-form input[type="file"] {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 20px;
+        background-color: #f8f9fa;
+        font-size: 14px;
+        outline: none;
+        transition: 0.3s;
+    }
+    .custom-register-form input:focus {
+        border-color: #2b1b3d;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(43, 27, 61, 0.1);
+    }
+    .custom-register-form .helptext {
+        display: block;
+        font-size: 11px;
+        color: #6c757d;
+        margin-top: 4px;
+        padding-left: 10px;
+        line-height: 1.3;
+    }
+    .custom-register-form .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 5px 0;
+        color: #dc3545;
+        font-size: 12px;
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}

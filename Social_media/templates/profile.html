@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+    <i class="fa-solid fa-bolt text-warning me-1"></i>მთავარზე დაბრუნება
+</a>
+{% if user.is_authenticated and user == user_profile %}
+    <form action="{% url 'logout' %}" method="POST" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold">
+            <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> გასვლა
+        </button>
+    </form>
+{% endif %}
+<div class="container mt-4" style="max-width: 500px;">
+    <div class="card p-3 text-center mb-4">
+    {% if user_profile.profile.profile_picture %}
+        <img src="{{ user_profile.profile.profile_picture.url }}" 
+             class="rounded-circle mx-auto mb-3" 
+             style="width: 100px; height: 100px; object-fit: cover;">
+    {% else %}
+        <div class="rounded-circle mx-auto mb-3 bg-secondary d-flex align-items-center justify-content-center" 
+             style="width: 100px; height: 100px;">
+            <span class="text-white" style="font-size: 40px;">👤</span>
+        </div>
+    {% endif %}
+    <h3>{{ user_profile.username }}-ის პროფილი</h3>
+    <p class="text-muted">გამოქვეყნებული პოსტები: {{ posts.count }}</p>
+    {% if user != user_profile %}
+        {% if user.profile in user_profile.profile.friends.all %}
+            <a href="{% url 'remove_friend' user_profile.username %}" class="btn btn-sm btn-danger mt-2">მეგობრების წაშლა</a>
+        {% else %}
+            <a href="{% url 'add_friend' user_profile.username %}" class="btn btn-sm btn-primary mt-2">მეგობრად დამატება</a>
+        {% endif %}
+    {% endif %}
+    {% if user == user_profile %}
+        <a href="{% url 'user_update' user.pk %}" class="btn btn-sm btn-outline-primary mt-2">✏️ პროფილის რედაქტირება</a>
+        <div class="card p-3 mt-3">
+    <h5>მეგობრები ({{ user_profile.profile.friends.count }})</h5>
+    {% for friend in user_profile.profile.friends.all %}
+    <div class="d-flex align-items-center mb-2">
+        {% if friend.profile_picture %}
+            <img src="{{ friend.profile_picture.url }}" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
+        {% else %}
+            <div class="rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                <span class="text-white">👤</span>
+            </div>
+        {% endif %}
+        <a href="{% url 'user_profile' friend.user.username %}" style="text-decoration: none; color: #495057;">
+            <strong>{{ friend.user.username }}</strong>
+        </a>
+    </div>
+    {% empty %}
+        <p class="text-muted">მეგობრები ჯერ არ არის.</p>
+    {% endfor %}
+</div>
+    {% endif %}
+</div>
+
+    {% if user.is_authenticated and user == user_profile %}
+    <div class="card p-3 mb-4 mx-auto" style="max-width: 450px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); background-color: #fff;">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea name="content" class="form-control" placeholder="რაზე ფიქრობ?" rows="3" style="border-radius: 8px; resize: none;"></textarea>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <input type="file" name="image" class="form-control d-none" id="profile-file-upload" accept="image/*">
+                    <label for="profile-file-upload" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; cursor: pointer;">
+                        <span style="font-size: 20px; font-weight: bold;">+</span>
+                    </label>
+                    <small id="profile-file-name" class="text-muted ms-2" style="font-size: 12px;"></small>
+                </div>
+                <button type="submit" class="btn btn-primary px-4" style="border-radius: 20px;">გაზიარება</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <h4>პოსტები:</h4>
+
+    <div class="container mt-4" style="max-width: 450px;">
+        {% for post in posts %}
+        <div class="card mb-4" style="border: 1px solid #ced4da; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div class="card-body p-3">
+
+                {% if post.is_share %}
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="d-flex align-items-center" style="font-size: 14px;"> 
+                            {% if post.author.profile.profile_picture %}
+                                <img src="{{ post.author.profile.profile_picture.url }}" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <span class="text-white" style="font-size: 16px;">👤</span>
+                                </div>
+                            {% endif %}
+                            <strong>{{ post.author.username }}</strong>
+                            <span class="text-success me-1">🔄</span>
+                            <span class="text-muted ms-1">გააზიარა პოსტი</span>
+                        </div>
+
+                        {% if user.is_authenticated and post.author == user %}
+                        <div class="dropdown ms-2">
+                            <button class="btn btn-link text-muted p-0 m-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; font-size: 16px; line-height: 1;">
+                                •••
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 13px; min-width: 100px;">
+                                <li><a class="dropdown-item text-danger py-2" href="{% url 'delete_post' post.id %}" onclick="return confirm('ნამდვილად გსურთ პოსტის წაშლა?');"><i class="fa-regular fa-trash-can me-2"></i> წაშლა</a></li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                        <div class="p-3 bg-light" style="border: 1px solid #dee2e6; border-radius: 10px;">
+                                    <p class="mb-1" style="font-size: 15px;">
+                                        <strong>
+                                            <a href="{% url 'user_profile' post.shared_from.author.username %}" style="text-decoration: none; color: #495057;">
+                                                {{ post.shared_from.author.username }}
+                                            </a>
+                                        </strong>
+                                    </p>
+                                    <small class="text-muted d-block mb-2" style="font-size: 11px;">
+                                        {{ post.shared_from.created_at|date:"d M Y - H:i" }}
+                                    </small>
+                                    <p class="card-text" style="font-size: 14px;">{{ post.shared_from.content }}</p>
+                                    {% if post.shared_from.image %}
+                                        <img src="{{ post.shared_from.image.url }}" class="img-fluid rounded mt-2" style="width: 100%; max-height: 300px; object-fit: cover;">
+                                    {% endif %}
+                                </div>
+                {% else %}
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center">
+                                {% if post.author.profile.profile_picture %}
+                                    <img src="{{ post.author.profile.profile_picture.url }}" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                        <span class="text-white" style="font-size: 16px;">👤</span>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="mb-0"><strong>{{ post.author.username }}</strong></p>
+                                    <small class="text-muted" style="font-size: 11px;">{{ post.created_at|date:"d M Y - H:i" }}</small>
+                                </div>
+                            </div>
+                            {% if user.is_authenticated and post.author == user %}
+                            <div class="dropdown ms-2">
+                                <button class="btn btn-link text-muted p-0 m-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; font-size: 16px; line-height: 1;">
+                                    •••
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                    <li><a class="dropdown-item text-primary py-2" href="#" onclick="togglePostEdit('{{ post.id }}'); return false;"><i class="fa-regular fa-pen-to-square me-2"></i> შეცვლა</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger py-2" href="{% url 'delete_post' post.id %}" onclick="return confirm('ნამდვილად გსურთ პოსტის წაშლა?');"><i class="fa-regular fa-trash-can me-2"></i> წაშლა</a></li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    <div id="post-content-wrapper-{{ post.id }}">
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" class="img-fluid rounded mt-2" style="width: 100%; max-height: 300px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+
+                    <form id="edit-post-form-{{ post.id }}" action="{% url 'edit_post' post.id %}" method="POST" class="d-none mt-2">
+                        {% csrf_token %}
+                        <textarea name="content" class="form-control mb-2" rows="3" style="border-radius: 8px; resize: none;">{{ post.content }}</textarea>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-success">შენახვა</button>
+                            <button type="button" class="btn btn-sm btn-light" onclick="togglePostEdit('{{ post.id }}')">გაუქმება</button>
+                        </div>
+                    </form>
+                {% endif %}
+
+                <div class="mt-3 pt-2 border-top d-flex gap-2">
+                    <button onclick="likePost({{ post.id }}, this)" class="btn btn-sm btn-outline-primary px-3" style="border-radius: 20px;">
+                        👍 <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span> Like
+                    </button>
+                    {% if user.is_authenticated and post.author != user %}
+                        <a href="{% url 'share_post' post.id %}" class="btn btn-sm btn-outline-success px-3" style="border-radius: 20px;">
+                            🔄 Share
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="mt-3">
+                    {% for comment in post.comments.all %}
+                        <div class="bg-light p-2 rounded mb-2 d-flex justify-content-between align-items-start" style="font-size: 13px; border-left: 3px solid #6c757d;">
+                            <div class="w-100" id="comment-box-{{ comment.id }}">
+                                <strong>{{ comment.author.username }}:</strong>
+                                <span id="comment-text-{{ comment.id }}">{{ comment.content }}</span>
+
+                                <form id="edit-form-{{ comment.id }}" action="{% url 'edit_comment' comment.id %}" method="POST" class="d-none mt-1">
+                                    {% csrf_token %}
+                                    <div class="d-flex gap-1">
+                                        <input type="text" name="comment_text" class="form-control form-control-sm" value="{{ comment.content }}">
+                                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                                        <button type="button" class="btn btn-sm btn-light" onclick="toggleEdit('{{ comment.id }}')">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% if comment.author == user %}
+                                <div class="dropdown ms-2">
+                                    <button class="btn btn-link text-muted p-0 m-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; font-size: 16px; line-height: 1;">
+                                        •••
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 13px; min-width: 100px;">
+                                        <li>
+                                            <a class="dropdown-item text-primary py-2" href="#" onclick="toggleEdit('{{ comment.id }}'); return false;"><i class="fa-regular fa-pen-to-square me-2"></i> შეცვლა</a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger py-2" href="{% url 'delete_comment' comment.id %}" onclick="return confirm('ნამდვილად გსურთ კომენტარის წაშლა?');"><i class="fa-regular fa-trash-can me-2"></i> წაშლა</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                            <small class="text-muted d-block mb-2">კომენტარები ჯერ არ არის</small>
+                    {% endfor %}
+
+                    {% if user.is_authenticated %}
+                    <form action="{% url 'add_comment' post.id %}" method="POST" class="d-flex mt-2">
+                        {% csrf_token %}
+                        <input type="text" name="comment_text" class="form-control form-control-sm me-2" placeholder="დაწერე კომენტარი..." style="border-radius: 20px;">
+                        <button type="submit" class="btn btn-sm btn-secondary px-3" style="border-radius: 20px;">გაგზავნა</button>
+                    </form>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-center text-muted mt-4">ამ მომხმარებელს პოსტები ჯერ არ აქვს</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('profile-file-upload').addEventListener('change', function() {
+        var fileName = this.files[0] ? this.files[0].name : '';
+        document.getElementById('profile-file-name').textContent = fileName;
+    });
+
+    function togglePostEdit(postId) {
+        const contentWrapper = document.getElementById('post-content-wrapper-' + postId);
+        const editForm = document.getElementById('edit-post-form-' + postId);
+        editForm.classList.toggle('d-none');
+        contentWrapper.classList.toggle('d-none');
+    }
+
+    function toggleEdit(commentId) {
+        const textSpan = document.getElementById('comment-text-' + commentId);
+        const editForm = document.getElementById('edit-form-' + commentId);
+        editForm.classList.toggle('d-none');
+        textSpan.classList.toggle('d-none');
+    }
+
+    function likePost(postId, btn) {
+    fetch(`/like/${postId}/`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('like-count-' + postId).textContent = data.count;
+        });
+    }
+</script>
+
+{% endblock content %}
+
+

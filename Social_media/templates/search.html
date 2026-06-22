@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4" style="max-width: 500px;">
+    <form method="GET" action="{% url 'search_users' %}" class="d-flex mb-4">
+        <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="მომხმარებლის ძებნა...">
+        <button type="submit" class="btn btn-primary">ძებნა</button>
+    </form>
+
+    {% for u in users %}
+    <div class="card mb-2 p-3 d-flex flex-row align-items-center">
+        {% if u.profile.profile_picture %}
+            <img src="{{ u.profile.profile_picture.url }}" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;">
+        {% else %}
+            <div class="rounded-circle me-3 bg-secondary d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                <span class="text-white">👤</span>
+            </div>
+        {% endif %}
+        <a href="{% url 'user_profile' u.username %}" style="text-decoration: none; color: #495057;">
+            <strong>{{ u.username }}</strong>
+        </a>
+    </div>
+    {% empty %}
+        {% if query %}
+            <p class="text-muted">მომხმარებელი ვერ მოიძებნა.</p>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
