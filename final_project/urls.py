@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from Social_media import views
 from Social_media.views import home, contacts, like_Post, post_detail, post_list, register_view, user_profile, share_post, user_update
-import debug_toolbar.urls
+#import debug_toolbar.urls
 from django.urls import include
 
 
@@ -48,7 +48,7 @@ urlpatterns = [
     path('search/', views.search_users, name='search_users'),
     path('friend/add/<str:username>/', views.add_friend, name='add_friend'),
     path('friend/remove/<str:username>/', views.remove_friend, name='remove_friend'),
-    path('__debug__/', include(debug_toolbar.urls)),
+    #path('__debug__/', include(debug_toolbar.urls)),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
