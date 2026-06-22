@@ -30,6 +30,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('contacts/', contacts, name='contacts'),
+    path('notifications/read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
     path('posts/', post_list, name='post_list'),
     path('posts/<int:pk>/', post_detail, name='post_detail'),
     path('like/<int:pk>/', like_Post.as_view(), name='like_post'),

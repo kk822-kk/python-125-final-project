@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
 from django.views.generic import ListView
 from Social_media.forms import PostForm
-from .models import Post
+from .models import Post, Comment, Notification
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import User
 from django.contrib.auth import login
@@ -16,8 +16,23 @@ from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
+def mark_notifications_as_read(request):
+    if request.user.is_authenticated:
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=403)
 
 
+def notifications_context(request):
+    if request.user.is_authenticated:
+        all_notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
+        unread_count = all_notifications.filter(is_read=False).count()
+        
+        return {
+            'notifications': all_notifications,
+            'unread_count': unread_count
+        }
+    return {'notifications': [], 'unread_count': 0}
 
 def add_friend(request, username):
     if request.user.is_authenticated:
@@ -179,10 +194,12 @@ def user_profile(request, username):
     return render(request, 'profile.html', context)
     
 
+
 class like_Post(View):
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         liked = False
+        
         if request.user.is_authenticated:
             if post.likes.filter(id=request.user.id).exists():
                 post.likes.remove(request.user)
@@ -190,6 +207,15 @@ class like_Post(View):
             else:
                 post.likes.add(request.user) 
                 liked = True
+                
+                if request.user != post.author: 
+                    Notification.objects.create(
+                        recipient=post.author,       
+                        sender=request.user,          
+                        post=post,
+                        notification_type='like',
+                        is_read=False               
+                    )
         
         return JsonResponse({'liked': liked, 'count': post.likes.count()})
 
@@ -226,6 +252,8 @@ class user_update(LoginRequiredMixin, View):
                 profile.profile_picture = form.cleaned_data['profile_picture']
                 profile.save()
         return redirect('user_profile', username=user.username)
+    
+
 
 
     

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <strong class="text-dark mr-2">{{ post.author.username }}</strong>
+                        <small class="text-muted">{{ post.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    
+                    <p class="card-text fs-5">{{ post.content }}</p>
+                    
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" class="img-fluid rounded mb-3" alt="Post image">
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="text-muted">
+                        ❤️ {{ post.likes_count }} მოწონება
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">კომენტარები</h5>
+                    
+                    <div class="comments-list mb-3">
+                        {% for comment in post.comments.all %}
+                            <div class="border-bottom py-2">
+                                <strong>{{ comment.author.username }}:</strong>
+                                <span class="text-secondary">{{ comment.content }}</span>
+                                <br>
+                                <small class="text-muted" style="font-size: 11px;">{{ comment.created_at|timesince }} წინ</small>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted text-center py-2">კომენტარები ჯერ არ არის.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <a href="{% url 'home' %}" class="btn btn-link mt-3">← მთავარზე დაბრუნება</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

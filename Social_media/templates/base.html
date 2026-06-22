@@ -34,15 +34,15 @@
                 </div>
             </form>
             
-           
             <div class="d-flex align-items-center">
                 
                 <div class="dropdown me-3">
                     <a class="nav-link position-relative text-white p-2" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell fs-4"></i>
-                        {% if unread_notifications %}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-top: 2px; margin-left: -2px;">
-                                {{ unread_notifications.count }}
+                        
+                        {% if unread_count > 0 %}
+                            <span id="notification-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="margin-top: 2px; margin-left: -2px;">
+                                {{ unread_count }}
                             </span>
                         {% endif %}
                     </a>
@@ -51,9 +51,9 @@
                         <li class="dropdown-header font-weight-bold text-dark">შეტყობინებები</li>
                         <li><hr class="dropdown-divider"></li>
                         
-                        {% if unread_notifications %}
-                            {% for notification in unread_notifications %}
-                                <li>
+                        {% if notifications %}
+                            {% for notification in notifications %}
+                                <li class="notification-item" style="{% if notification.is_read %}opacity: 0.55;{% endif %}">
                                     <a class="dropdown-item py-2" href="{% url 'post_detail' notification.post.id %}" style="white-space: normal;">
                                         <strong>{{ notification.sender.username }}</strong>-მა დაალაიქა შენი პოსტი
                                         <br>
@@ -63,11 +63,10 @@
                                 <li><hr class="dropdown-divider"></li>
                             {% endfor %}
                         {% else %}
-                            <li><a class="dropdown-item text-center text-muted" href="#">ახალი შეტყობინებები არ არის</a></li>
+                            <li><a class="dropdown-item text-center text-muted" href="#">შეტყობინებები არ არის</a></li>
                         {% endif %}
                     </ul>
                 </div>
-                <!-- ზარის დასასრული -->
 
                 <a href="{% url 'contacts' %}" class="btn btn-sm text-white px-3 py-2 fw-bold" 
                 style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; transition: 0.3s;">
@@ -122,6 +121,27 @@
                     }
                 });
             }
+        });
+
+        document.getElementById('notificationDropdown').addEventListener('click', function() {
+            fetch("{% url 'mark_notifications_as_read' %}", {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const countBadge = document.getElementById('notification-count');
+                    if (countBadge) {
+                        countBadge.remove();
+                    }
+                    document.querySelectorAll('.notification-item').forEach(item => {
+                        item.style.opacity = '0.55';
+                    });
+                }
+            });
         });
     </script>
 </body>

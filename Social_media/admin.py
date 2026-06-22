@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Tag, Comment, Profile
+from .models import Post, Tag, Comment, Profile, Notification
 
 admin.site.site_header = "Geo-Pop Admin"
 
@@ -29,3 +29,8 @@ class CommentAdmin(admin.ModelAdmin):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user',)
     search_fields = ('user__username',)
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('recipient', 'sender', 'notification_type', 'created_at')
+    list_filter = ('notification_type', 'created_at')

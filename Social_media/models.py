@@ -52,7 +52,7 @@ class Notification(models.Model):
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_notifications')
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES, default='like') # ახალი ველი!
+    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES, default='like')
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)   
 
